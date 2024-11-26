@@ -50,7 +50,7 @@ public class ListaDesejoController {
         var idUser = request.getAttribute("idUser");
 
         if(!listaDesejo.getIdUser().equals(idUser)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa tarefa");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar esse item");
         }
 
         Utils.copyNonNullProperties(listaDesejoEntity, listaDesejo);
@@ -58,4 +58,23 @@ public class ListaDesejoController {
         var listaDesejoUpdated = this.listaDesejoRepository.save(listaDesejo);
         return ResponseEntity.ok().body(listaDesejoUpdated);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Integer id, HttpServletRequest request) {
+        var listaDesejo = this.listaDesejoRepository.findById(id).orElse(null);
+
+        if(listaDesejo == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Item não encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if(!listaDesejo.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para deletar esse item");
+        }
+
+        this.listaDesejoRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Item deletado");
+    }
+
 }

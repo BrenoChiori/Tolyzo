@@ -50,12 +50,30 @@ public class DespesaController {
         var idUser = request.getAttribute("idUser");
 
         if(!despesa.getIdUser().equals(idUser)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa tarefa");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa receita");
         }
 
         Utils.copyNonNullProperties(despesaEntity, despesa);
 
         var despesaUpdated = this.despesaRepository.save(despesa);
         return ResponseEntity.ok().body(despesaUpdated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Integer id, HttpServletRequest request) {
+        var despesa = this.despesaRepository.findById(id).orElse(null);
+
+        if(despesa == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Despesa não encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if(!despesa.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para deletar essa despesa");
+        }
+
+        this.despesaRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Despesa deletada");
     }
 }

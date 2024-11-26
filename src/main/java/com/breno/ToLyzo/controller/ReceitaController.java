@@ -50,12 +50,30 @@ public class ReceitaController {
         var idUser = request.getAttribute("idUser");
 
         if(!receita.getIdUser().equals(idUser)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa tarefa");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa receita");
         }
 
         Utils.copyNonNullProperties(receitaEntity, receita);
 
         var receitaUpdated = this.receitaRepository.save(receita);
         return ResponseEntity.ok().body(receitaUpdated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Integer id, HttpServletRequest request) {
+        var receita = this.receitaRepository.findById(id).orElse(null);
+
+        if(receita == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Receita não encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if(!receita.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para deletar essa receita");
+        }
+
+        this.receitaRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Receita deletada");
     }
 }
